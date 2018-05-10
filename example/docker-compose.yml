@@ -1,0 +1,46 @@
+# docker-compose for nfs-client
+#
+version: "2.4"
+services:
+
+  some-client:
+    network_mode: service:openvpn-client
+    image: byrnedo/alpine-curl
+
+  openvpn-client:
+    image: phlax/openvpn-client
+    cap_add:
+     - NET_ADMIN
+    networks:
+    - vpn-in-between
+    volumes:
+    - ${PWD}/example/client:/etc/openvpn/client
+    - /dev/net:/dev/net:z
+    environment:
+    - VPN_CLIENT_NAME=vpn-client
+    - VPN_SERVER_HOST=openvpn-server
+    - VPN_SERVER_PORT=1194
+
+  openvpn-server:
+    image: kylemanna/openvpn:edge
+    cap_add:
+     - NET_ADMIN
+    networks:
+    - some-server-network
+    - vpn-in-between
+    volumes:
+    - ${PWD}/example/server:/etc/openvpn
+    environment:
+    - OPENVPN_DNS_NAMES=some-server some-other-server
+
+  some-server:
+    image: nginx
+    networks:
+    - some-server-network
+    volumes:
+    - ${PWD}/example/nginx/conf.d:/etc/nginx/conf.d
+    - ${PWD}/example/nginx/index.html:/usr/share/nginx/html/index.html
+
+networks:
+  vpn-in-between:
+  some-server-network:
