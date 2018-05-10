@@ -1,0 +1,10 @@
+# docker-compose for phlax/openvpn-client
+#
+version: "2.4"
+services:
+
+  openvpn-client:
+    privileged: true
+    image: phlax/openvpn-client
+    build:
+      context: ./docker/openvpn-client
