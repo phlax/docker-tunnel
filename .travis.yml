@@ -1,0 +1,51 @@
+# https://travis-ci.org/#!/phlax/nfs-client
+dist: trusty
+sudo: true
+language: python
+services:
+  - docker
+
+before_install:
+  - "echo '{\"storage-driver\": \"overlay2\"}' | sudo tee /etc/docker/daemon.json"
+  - "sudo apt-get install -qq -y docker-ce"
+
+install:
+  - pip install -U docker-compose
+  - docker-compose build openvpn-client
+
+script:
+
+  # set the environment
+  - echo "COMPOSE_FILE=./example/docker-compose.yml" > ./.env
+
+  # pull required images
+  - docker-compose pull openvpn-server some-server some-client
+
+  # up the servers
+  - docker-compose up -d some-server
+  - docker-compose up -d openvpn-server
+
+  # up the client and check connection
+  - docker-compose up -d openvpn-client
+
+  # give the vpn endpoints a second to connect
+  - sleep 1
+
+  # check the logs
+  - docker-compose logs openvpn-server
+  - docker-compose logs openvpn-client
+
+  - docker-compose ps
+
+  # check that some-server is routable from some-client
+  - "docker-compose run --rm some-client http://some-server > response.txt"
+  - cat response.txt
+
+  - docker-compose logs some-server
+
+
+after_success:
+
+  - docker-compose build openvpn-client
+  - docker login -u phlax -p "$DOCKER_PASSWORD"
+  - docker push phlax/openvpn-client
