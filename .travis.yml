@@ -11,7 +11,7 @@ before_install:
 
 install:
   - pip install -U docker-compose
-  - docker-compose build openvpn-client
+  - docker-compose build openvpn-client openvpn-server
 
 script:
 
@@ -19,7 +19,7 @@ script:
   - echo "COMPOSE_FILE=./example/docker-compose.yml" > ./.env
 
   # pull required images
-  - docker-compose pull openvpn-server some-server some-client
+  - docker-compose pull some-server some-client
 
   # up the servers
   - docker-compose up -d some-server
@@ -46,6 +46,6 @@ script:
 
 after_success:
 
-  - docker-compose build openvpn-client
   - docker login -u phlax -p "$DOCKER_PASSWORD"
+  - docker push phlax/openvpn-server
   - docker push phlax/openvpn-client
