@@ -22,16 +22,17 @@ services:
     - VPN_SERVER_PORT=1194
 
   openvpn-server:
-    image: kylemanna/openvpn:edge
+    image: phlax/openvpn-server
     cap_add:
      - NET_ADMIN
     networks:
     - some-server-network
     - vpn-in-between
     volumes:
-    - ${PWD}/example/server:/etc/openvpn
+    - ${PWD}/example/server:/etc/openvpn/server
     environment:
     - OPENVPN_DNS_NAMES=some-server some-other-server
+    - VPN_SERVER_NAME=openvpn-server.ex.ample
 
   some-server:
     image: nginx
