@@ -8,3 +8,9 @@ services:
     image: phlax/openvpn-client
     build:
       context: ./docker/openvpn-client
+
+  openvpn-server:
+    privileged: true
+    image: phlax/openvpn-server
+    build:
+      context: ./docker/openvpn-server
