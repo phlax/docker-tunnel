@@ -51,6 +51,10 @@ if [ "${PEER_DNS}" != "no" ]; then
         fi
 
         if [ -n "${NAMES}" ]; then
+            if [ ! -f /etc/hosts.orig ]; then
+                cp -a /etc/hosts /etc/hosts.orig
+            fi
+            cat /etc/hosts.orig > /etc/hosts
             printf "\n${NAMES}" >> /etc/hosts;
         fi
 fi
