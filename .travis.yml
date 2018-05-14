@@ -25,6 +25,9 @@ script:
   - docker-compose up -d some-server
   - docker-compose up -d openvpn-server
 
+  # one of the vpn server addresses doesnt resolve, and it therefore waits 5 seconds
+  - sleep 6
+
   # up the client and check connection
   - docker-compose up -d openvpn-client
 
