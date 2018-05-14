@@ -3,7 +3,6 @@
 OPTIONS=$1
 DNS_NAMES=$(cat /etc/openvpn/dns-names)
 
-
 if [ ! -z "$DNS_NAMES" ]; then
     set -- junk $DNS_NAMES
     shift
