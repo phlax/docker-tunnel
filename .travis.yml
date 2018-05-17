@@ -46,6 +46,17 @@ script:
 
   - docker-compose logs some-server
 
+  # stop the vpn client and check the daemon exited properly
+  - docker-compose stop openvpn-client
+  - docker-compose logs openvpn-client
+
+  # stop the vpn server and check the daemon exited properly
+  - docker-compose stop openvpn-server
+  - docker-compose logs openvpn-server
+
+  # all gone
+  - docker-compose ps
+
 
 after_success:
 
