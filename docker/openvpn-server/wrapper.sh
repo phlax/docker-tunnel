@@ -35,4 +35,4 @@ cat /etc/openvpn/openvpn.conf
 envsubst '$VPN_SERVER_NAME' < /etc/openvpn/ovpn_env.sh.template > /etc/openvpn/ovpn_env.sh
 echo "Added vpn server env for: $VPN_SERVER_NAME"
 
-ovpn_run
+exec ovpn_run
