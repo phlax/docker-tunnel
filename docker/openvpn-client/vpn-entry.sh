@@ -3,6 +3,11 @@
 envsubst '$VPN_SERVER_HOST$VPN_SERVER_PORT$VPN_CLIENT_NAME' < /etc/openvpn/client.conf.template > /etc/openvpn/$VPN_CLIENT_NAME.conf
 echo "Added vpn client $VPN_CLIENT_NAME ($VPN_SERVER_HOST:$VPN_SERVER_PORT)"
 
+if [ ! -z "$OPENVPN_MANAGEMENT_SOCKET" ]; then
+    echo "Adding management socket on: $OPENVPN_MANAGEMENT_SOCKET"
+    echo "management $OPENVPN_MANAGEMENT_SOCKET" >> /etc/openvpn/$VPN_CLIENT_NAME.conf
+fi
+
 cat /etc/openvpn/$VPN_CLIENT_NAME.conf
 
 echo "Starting openvpn..."

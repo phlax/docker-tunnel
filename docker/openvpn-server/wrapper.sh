@@ -35,4 +35,9 @@ cat /etc/openvpn/openvpn.conf
 envsubst '$VPN_SERVER_NAME' < /etc/openvpn/ovpn_env.sh.template > /etc/openvpn/ovpn_env.sh
 echo "Added vpn server env for: $VPN_SERVER_NAME"
 
+if [ ! -z "$OPENVPN_MANAGEMENT_SOCKET" ]; then
+    echo "Adding management socket on: $OPENVPN_MANAGEMENT_SOCKET"
+    echo "management $OPENVPN_MANAGEMENT_SOCKET" >> /etc/openvpn/openvpn.conf
+fi
+
 exec ovpn_run
