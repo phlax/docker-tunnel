@@ -13,3 +13,5 @@ tls-auth /etc/openvpn/client/ta.key 1
 script-security 2
 up /etc/openvpn/client-up.sh
 comp-lzo
+
+explicit-exit-notify 5
