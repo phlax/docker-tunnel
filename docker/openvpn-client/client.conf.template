@@ -15,3 +15,7 @@ up /etc/openvpn/client-up.sh
 comp-lzo
 
 explicit-exit-notify 5
+
+tun-mtu 1500
+tun-mtu-extra 32
+mssfix 1464

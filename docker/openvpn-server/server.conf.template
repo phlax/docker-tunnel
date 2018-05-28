@@ -30,3 +30,7 @@ push "comp-lzo"
 # this does the ~magic for docker 8/
 client-connect /etc/openvpn/push-names
 script-security 2
+
+tun-mtu 1500
+tun-mtu-extra 32
+mssfix 1464
