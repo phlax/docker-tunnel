@@ -1,6 +1,7 @@
 FROM kylemanna/openvpn:edge
 
 RUN apk add --no-cache gettext
+RUN apk upgrade openvpn
 
 COPY wrapper.sh /usr/local/bin/wrapper.sh
 COPY push-names /etc/openvpn/push-names
