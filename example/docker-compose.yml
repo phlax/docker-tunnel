@@ -24,7 +24,7 @@ services:
   openvpn-server:
     image: phlax/openvpn-server
     cap_add:
-     - NET_ADMIN
+    - NET_ADMIN
     networks:
     - some-server-network
     - vpn-in-between
