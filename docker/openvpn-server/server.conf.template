@@ -31,8 +31,5 @@ push "comp-lzo"
 client-connect /etc/openvpn/push-names
 script-security 2
 
-##tun-mtu 1500
-#tun-mtu-extra 32
-#mssfix 1464
-
 cipher AES-256-GCM
+fast-io
