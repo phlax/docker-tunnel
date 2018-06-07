@@ -13,6 +13,11 @@ install:
   - pip install -U docker-compose
   - docker-compose build openvpn-client openvpn-server
 
+  # remove the annoying volume from server image
+  - git clone https://github.com/gdraheim/docker-copyedit
+  - chmod +x ./docker-copyedit/docker-copyedit.py
+  - ./docker-copyedit/docker-copyedit.py -vv FROM phlax/openvpn-server INTO phlax/openvpn-server:latest REMOVE VOLUME /etc/openvpn
+
 script:
 
   # set the environment
