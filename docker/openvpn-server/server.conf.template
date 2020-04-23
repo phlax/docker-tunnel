@@ -1,5 +1,5 @@
 
-server 192.168.255.0 255.255.255.0
+server $SERVER
 verb 3
 key /etc/openvpn/server/$VPN_SERVER_NAME.key
 cert /etc/openvpn/server/$VPN_SERVER_NAME.crt
@@ -19,9 +19,6 @@ user nobody
 group nogroup
 comp-lzo
 
-### Route Configurations Below
-route 192.168.254.0 255.255.255.0
-
 ### Push Configurations Below
 push "dhcp-option DNS 8.8.8.8"
 push "dhcp-option DNS 8.8.4.4"
@@ -33,3 +30,5 @@ script-security 2
 
 cipher AES-256-GCM
 fast-io
+
+# machine-readable-output

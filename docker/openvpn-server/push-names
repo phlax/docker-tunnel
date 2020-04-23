@@ -11,6 +11,8 @@ if [ ! -z "$DNS_NAMES" ]; then
         if [ ! -z "$ADDRESS" ]; then
             echo "Adding name forwarding for: $NAME -> $ADDRESS"
             echo "push \"dhcp-option name $NAME:$ADDRESS\"" >> $OPTIONS
+	    echo "Adding route to $NAME -> $ADDRESS"
+	    echo "push \"route $ADDRESS 255.255.255.255\"" >> $OPTIONS
         else
             echo "Unable to resolve address for $NAME"
         fi

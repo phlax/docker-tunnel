@@ -5,7 +5,7 @@ dev tun
 remote-cert-tls server
 remote $VPN_SERVER_HOST $VPN_SERVER_PORT udp
 key-direction 1
-redirect-gateway def1
+# redirect-gateway def1
 ca /etc/openvpn/client/ca.crt
 key /etc/openvpn/client/$VPN_CLIENT_NAME.key
 cert /etc/openvpn/client/$VPN_CLIENT_NAME.crt
@@ -16,5 +16,8 @@ comp-lzo
 
 explicit-exit-notify 5
 
+# verb 4
+
 cipher AES-256-GCM
 fast-io
+auth-nocache
