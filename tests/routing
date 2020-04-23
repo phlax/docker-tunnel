@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ ! -z "$TRAP_ERRORS" ]; then
+    trap "$TRAP_ERRORS" ERR
+fi
+
+docker-compose run --rm some-client -m2 http://some-server > response.txt
+cat response.txt
+docker-compose logs some-server
+
+
+docker-compose run --rm another-client -m2 http://port-forwarded-to-some-server:8080 > response.txt
+cat response.txt
+docker-compose logs some-server
+
+
+docker-compose run --rm yet-another-client -m2 http://port-forwarded-to-some-server:8080 > response.txt
+cat response.txt
+docker-compose logs some-server
