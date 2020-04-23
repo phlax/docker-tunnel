@@ -1,70 +1,34 @@
 # https://travis-ci.org/#!/phlax/nfs-client
-dist: trusty
-sudo: true
+dist: bionic
 language: python
-services:
-  - docker
 
 before_install:
-  - "echo '{\"storage-driver\": \"overlay2\"}' | sudo tee /etc/docker/daemon.json"
-  - "sudo apt-get install -qq -y docker-ce"
+  - make images
+  - make pysh
 
 install:
-  - pip install -U docker-compose
-  - docker-compose build openvpn-client openvpn-server
-
-  # remove the annoying volume from server image
-  - git clone https://github.com/gdraheim/docker-copyedit
-  - chmod +x ./docker-copyedit/docker-copyedit.py
-  - ./docker-copyedit/docker-copyedit.py -vv FROM phlax/openvpn-server INTO phlax/openvpn-server:latest REMOVE VOLUME /etc/openvpn
-
-script:
-
   # set the environment
   - echo "COMPOSE_FILE=./example/docker-compose.yml" > ./.env
 
   # pull required images
   - docker-compose pull some-server some-client
 
-  # up the servers
-  - docker-compose up -d some-server
-  - docker-compose up -d openvpn-server
+script:
 
-  # one of the vpn server addresses doesnt resolve, and it therefore waits 5 seconds
-  - sleep 6
+  # up the servers and client
+  - docker-compose up -d some-client
 
-  # up the client and check connection
-  - docker-compose up -d openvpn-client
+  - pysh ./tests/system
+  - pysh ./tests/routing
+  - pysh ./tests/shutdown
 
-  # give the vpn endpoints a second to connect
-  - sleep 1
+before_deploy:
+  - echo $DOCKER_PASSWORD | docker login -u phlax --password-stdin
 
-  # check the logs
-  - docker-compose logs openvpn-server
-  - docker-compose logs openvpn-client
-
-  - docker-compose ps
-
-  # check that some-server is routable from some-client
-  - "docker-compose run --rm some-client http://some-server > response.txt"
-  - cat response.txt
-
-  - docker-compose logs some-server
-
-  # stop the vpn client and check the daemon exited properly
-  - docker-compose stop openvpn-client
-  - docker-compose logs openvpn-client
-
-  # stop the vpn server and check the daemon exited properly
-  - docker-compose stop openvpn-server
-  - docker-compose logs openvpn-server
-
-  # all gone
-  - docker-compose ps
-
-
-after_success:
-
-  - docker login -u phlax -p "$DOCKER_PASSWORD"
-  - docker push phlax/openvpn-server
-  - docker push phlax/openvpn-client
+deploy:
+  provider: script
+  script: make hub-images
+  skip_cleanup: true
+  on:
+    all_branches: true
+    condition: $TRAVIS_BRANCH =~ ^(master)$
