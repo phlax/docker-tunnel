@@ -17,3 +17,8 @@ docker-compose logs some-server
 docker-compose run --rm yet-another-client -m2 http://port-forwarded-to-some-server:8080 > response.txt
 cat response.txt
 docker-compose logs some-server
+
+
+docker-compose run --rm yet-another-client -m2 http://port-forwarded-to-some-server:8081 > response.txt
+cat response.txt
+docker-compose logs some-server
