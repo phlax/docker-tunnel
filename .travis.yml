@@ -21,6 +21,7 @@ script:
   - pysh ./tests/system
   - pysh ./tests/routing
   - pysh ./tests/shutdown
+  - shellcheck -x docker/openvpn-server/ovpn_run
 
 before_deploy:
   - echo $DOCKER_PASSWORD | docker login -u phlax --password-stdin
