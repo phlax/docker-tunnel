@@ -12,7 +12,7 @@ services:
 
   side0-client1:
     networks:
-      - side1-net1
+      - side0-net0
     image: byrnedo/alpine-curl
     links:
       - "vpn-side0:port-forwarded-to-side1-server0"
@@ -22,13 +22,21 @@ services:
 
   side0-client2:
     networks:
-      - side1-net2
+      - side0-net1
     image: byrnedo/alpine-curl
     links:
       - "vpn-side0:port-forwarded-to-side1-server0"
     depends_on:
       vpn-side0:
         condition: service_healthy
+
+  side0-server0:
+    image: nginx
+    networks:
+    - side0-net0
+    volumes:
+    - ${PWD}/example/nginx/conf.d:/etc/nginx/conf.d
+    - ${PWD}/example/nginx/index.html:/usr/share/nginx/html/index.html
 
   vpn-side0:
     image: phlax/openvpn-client
@@ -42,9 +50,9 @@ services:
       - NET_ADMIN
     networks:
       vpn-in-between:
-      side1-net1:
+      side0-net0:
         ipv4_address: 10.23.23.2
-      side1-net2:
+      side0-net1:
         ipv4_address: 10.23.24.2
     volumes:
       - ${PWD}/example/client:/etc/openvpn/client
@@ -90,14 +98,22 @@ services:
     - ${PWD}/example/nginx/conf.d:/etc/nginx/conf.d
     - ${PWD}/example/nginx/index.html:/usr/share/nginx/html/index.html
 
+  side1-client0:
+    network_mode: service:vpn-side1
+    image: byrnedo/alpine-curl
+    depends_on:
+      vpn-side1:
+        condition: service_healthy
+
+
 networks:
   vpn-in-between:
   side1-net0:
-  side1-net1:
+  side0-net0:
     ipam:
       config:
       - subnet: 10.23.23.0/24
-  side1-net2:
+  side0-net1:
     ipam:
       config:
       - subnet: 10.23.24.0/24

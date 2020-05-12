@@ -22,3 +22,7 @@ docker-compose logs side1-server0
 docker-compose run --rm side0-client2 -m2 http://port-forwarded-to-side1-server0:8081 > response.txt
 cat response.txt
 docker-compose logs side1-server0
+
+
+docker-compose run -T --rm side1-client0 -m5 http://side0-server0 | grep Hello
+docker-compose logs side0-server0
