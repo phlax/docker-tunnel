@@ -61,6 +61,22 @@ if [ ! -c /dev/net/tun ]; then
     mknod /dev/net/tun c 10 200
 fi
 
+add_client_networks ()  {
+    local client client_network network netmask
+    for client_network in $OVPN_CLIENT_NETWORKS; do
+	if [ ! -d "$OPENVPN/ccd" ]; then
+	    mkdir "$OPENVPN/ccd"
+	fi
+	client=$(echo $client_network | cut -d: -f1)
+	network=$(echo $client_network | cut -d: -f2)
+	netmask=$(echo $client_network | cut -d: -f3)
+	echo "iroute $network $netmask" >> "${OPENVPN}/ccd/${client}"
+    done
+}
+
+add_client_networks
+
+
 if [ -d "$OPENVPN/ccd" ]; then
     addArg "--client-config-dir" "$OPENVPN/ccd"
 fi

@@ -32,6 +32,11 @@ mangle_templates () {
     netmask=$(ipcalc -m $OVPN_SERVER | cut -d"=" -f2)
     export SERVER="$address $netmask"
     envsubst '$VPN_SERVER_NAME $SERVER' < /etc/openvpn/server.conf.template > /etc/openvpn/openvpn.conf
+    for client_network in $OVPN_CLIENT_NETWORKS; do
+	network=$(echo $client_network | cut -d: -f2)
+	netmask=$(echo $client_network | cut -d: -f3)
+	echo "route $network $netmask" >> /etc/openvpn/openvpn.conf
+    done
     envsubst '$VPN_SERVER_NAME $OVPN_SERVER $OVPN_ROUTES $OVPN_MANAGEMENT_SOCKET' < /etc/openvpn/ovpn_env.sh.template > /etc/openvpn/ovpn_env.sh
     echo "#### CONFIG"
     cat /etc/openvpn/openvpn.conf
