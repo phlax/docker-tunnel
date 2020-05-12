@@ -59,10 +59,6 @@ mangle_templates () {
     echo "#### ENDCONFIG"
 }
 
-fix_key_permissions () {
-    chmod og-rwx /etc/openvpn/server/*key
-}
-
 
 # Checks if ARGS already contains the given value
 function hasArg {
@@ -129,7 +125,6 @@ mangle_templates
 . "$OPENVPN/ovpn_env.sh"
 setup_dns_names "${@}"
 add_control_socket
-fix_key_permissions
 
 addArg "--config" "$OPENVPN/openvpn.conf"
 
