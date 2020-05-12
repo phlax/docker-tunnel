@@ -12,12 +12,6 @@ server-image:
 	docker build \
 	         -t phlax/openvpn-server \
 		docker/openvpn-server
-	if [ ! -d docker-copyedit ]; then git clone https://github.com/gdraheim/docker-copyedit; fi
-	chmod +x ./docker-copyedit/docker-copyedit.py
-	./docker-copyedit/docker-copyedit.py -vv \
-		FROM phlax/openvpn-server \
-		INTO phlax/openvpn-server:latest \
-		REMOVE VOLUME /etc/openvpn
 
 images: client-image server-image
 
