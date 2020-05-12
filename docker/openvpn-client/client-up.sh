@@ -115,7 +115,19 @@ add_port_forwarding () {
     done
 }
 
+
+add_subnet_masq () {
+    echo "ADD SUBNET MASQING"
+    echo "$OVPN_NET_MASQ"
+    for masq in $OVPN_NET_MASQ; do
+	echo "Masquerade added: $masq"
+	iptables -t nat -A POSTROUTING -d "$masq" -j MASQUERADE
+    done
+}
+
+
 add_dhcp_options
 add_port_forwarding
+add_subnet_masq
 
 exit 0

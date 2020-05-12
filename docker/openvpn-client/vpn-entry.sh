@@ -10,7 +10,7 @@ add_control_socket () {
 mangle_templates () {
     envsubst '$VPN_SERVER_HOST $VPN_SERVER_PORT $VPN_CLIENT_NAME' < /etc/openvpn/client.conf.template > /etc/openvpn/$VPN_CLIENT_NAME.conf
     echo "Mangling templates: $OVPN_PORT_FORWARDS"
-    envsubst '$OVPN_PORT_FORWARDS $OVPN_MANAGEMENT_SOCKET' < /etc/openvpn/ovpn_env.sh.template > /etc/openvpn/ovpn_env.sh
+    envsubst '$OVPN_PORT_FORWARDS $OVPN_MANAGEMENT_SOCKET $OVPN_NET_MASQ' < /etc/openvpn/ovpn_env.sh.template > /etc/openvpn/ovpn_env.sh
 }
 
 
