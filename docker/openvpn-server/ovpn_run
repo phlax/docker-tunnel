@@ -10,7 +10,7 @@ fi
 
 set -e
 
-cd $OPENVPN
+cd "$OPENVPN"
 
 # Build runtime arguments array based on environment
 USER_ARGS=("${@}")
@@ -18,25 +18,25 @@ ARGS=()
 
 
 setup_dns_names () {
-    local address name retries routes
+    local address name retries
     for name in $OPENVPN_DNS_NAMES; do
 	retries=0
-	until [ ! -z "$(getent hosts $name | awk '{ print $1 }')" ] || [ $retries -lt 25 ]; do
-            retries=`expr $retries + 1`
+	until [ -n "$(getent hosts "$name" | awk '{ print $1 }')" ] || [ $retries -lt 25 ]; do
+            retries=$(("retries + 1"))
             sleep .2;
 	done
-	address=$(getent hosts $name | awk '{ print $1 }')
+	address=$(getent hosts "$name" | awk '{ print $1 }')
 	if [ -z "$address" ]; then
             echo "WARNING: cannot resolve route to $name, no routes have been added"
 	    return
 	fi
 	echo "Added address for $name: $address"
-	echo $name >> /etc/openvpn/dns-names
+	echo "$name" >> /etc/openvpn/dns-names
     done
 }
 
 add_control_socket () {
-    if [ ! -z "$OVPN_MANAGEMENT_SOCKET" ]; then
+    if [ -n "$OVPN_MANAGEMENT_SOCKET" ]; then
 	echo "Adding management socket on: $OVPN_MANAGEMENT_SOCKET"
 	echo "management $OVPN_MANAGEMENT_SOCKET" >> /etc/openvpn/openvpn.conf
     fi
@@ -44,14 +44,14 @@ add_control_socket () {
 
 mangle_templates () {
     export OVPN_SERVER=${OVPN_SERVER:-192.168.255.0/24}
-    address=$(ipcalc -n $OVPN_SERVER | cut -d"=" -f2)
-    netmask=$(ipcalc -m $OVPN_SERVER | cut -d"=" -f2)
+    address=$(ipcalc -n "$OVPN_SERVER" | cut -d"=" -f2)
+    netmask=$(ipcalc -m "$OVPN_SERVER" | cut -d"=" -f2)
     export SERVER="$address $netmask"
-    envsubst '$VPN_SERVER_NAME $SERVER' < /etc/openvpn/server.conf.template > /etc/openvpn/openvpn.conf
+    envsubst '${VPN_SERVER_NAME} ${SERVER}' < /etc/openvpn/server.conf.template > /etc/openvpn/openvpn.conf
     for client_network in $OVPN_CLIENT_NETWORKS; do
-	network=$(echo $client_network | cut -d: -f2)
-	netmask=$(echo $client_network | cut -d: -f3)
-	echo "route $network $netmask" >> /etc/openvpn/openvpn.conf
+	network=$(echo "$client_network" | cut -d: -f2)
+	netmask=$(echo "$client_network" | cut -d: -f3)
+	echo "route ${network} ${netmask}" >> /etc/openvpn/openvpn.conf
     done
     envsubst '$VPN_SERVER_NAME $OVPN_SERVER $OVPN_ROUTES $OVPN_MANAGEMENT_SOCKET' < /etc/openvpn/ovpn_env.sh.template > /etc/openvpn/ovpn_env.sh
     echo "#### CONFIG"
@@ -87,17 +87,18 @@ function addArg {
 # this allows rules/routing to be altered by supplying this function
 # in an included file, such as ovpn_env.sh
 function setupIptablesAndRouting {
-    for route in ${OVPN_ROUTES[@]}; do
-	if [ ! $(iptables -t nat -C POSTROUTING -s "$route" -o $OVPN_NATDEVICE -j MASQUERADE) ]; then
+    for route in "${OVPN_ROUTES[@]}"; do
+	if [ ! "$(iptables -t nat -C POSTROUTING -s "$route" -o "$OVPN_NATDEVICE" -j MASQUERADE)" ]; then
 	    echo "Adding routing for $route subnet on $OVPN_NATDEVICE"
-	    iptables -t nat -A POSTROUTING -s "$route" -o $OVPN_NATDEVICE -j MASQUERADE
+	    iptables -t nat -A POSTROUTING -s "$route" -o "$OVPN_NATDEVICE" -j MASQUERADE
 	fi
     done
-    if [ ! $(iptables -t nat -C POSTROUTING -s $OVPN_SERVER -o $OVPN_NATDEVICE -j MASQUERADE) ]; then
+    if [ ! "$(iptables -t nat -C POSTROUTING -s "$OVPN_SERVER" -o "$OVPN_NATDEVICE" -j MASQUERADE)" ]; then
 	echo "Adding routing for $OVPN_SERVER subnet on $OVPN_NATDEVICE"
-	iptables -t nat -A POSTROUTING -s $OVPN_SERVER -o $OVPN_NATDEVICE -j MASQUERADE
+	iptables -t nat -A POSTROUTING -s "$OVPN_SERVER" -o "$OVPN_NATDEVICE" -j MASQUERADE
     fi
 }
+
 
 create_tun_device () {
     mkdir -p /dev/net
@@ -113,9 +114,9 @@ add_client_networks ()  {
 	if [ ! -d "$OPENVPN/ccd" ]; then
 	    mkdir "$OPENVPN/ccd"
 	fi
-	client=$(echo $client_network | cut -d: -f1)
-	network=$(echo $client_network | cut -d: -f2)
-	netmask=$(echo $client_network | cut -d: -f3)
+	client=$(echo "$client_network" | cut -d: -f1)
+	network=$(echo "$client_network" | cut -d: -f2)
+	netmask=$(echo "$client_network" | cut -d: -f3)
 	echo "iroute $network $netmask" >> "${OPENVPN}/ccd/${client}"
     done
 }
@@ -123,7 +124,9 @@ add_client_networks ()  {
 
 create_tun_device
 add_client_networks
-mangle_templates && source "$OPENVPN/ovpn_env.sh"
+mangle_templates
+# shellcheck source=/dev/null
+. "$OPENVPN/ovpn_env.sh"
 setup_dns_names "${@}"
 add_control_socket
 fix_key_permissions
@@ -145,5 +148,4 @@ if [ "$OVPN_DEFROUTE" != "0" ] || [ "$OVPN_NAT" == "1" ] ; then
 	setupIptablesAndRouting
 fi
 
-echo "Running 'openvpn ${ARGS[@]} ${USER_ARGS[@]}'"
-exec openvpn ${ARGS[@]} ${USER_ARGS[@]}
+exec openvpn "${ARGS[@]}" "${USER_ARGS[@]}"
