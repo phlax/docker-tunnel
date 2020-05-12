@@ -3,101 +3,101 @@
 version: "2.4"
 services:
 
-  some-client:
-    network_mode: service:openvpn-client
+  side0-client0:
+    network_mode: service:vpn-side0
     image: byrnedo/alpine-curl
     depends_on:
-      openvpn-client:
+      vpn-side0:
         condition: service_healthy
 
-  another-client:
+  side0-client1:
     networks:
-      - vpn-client
+      - side1-net1
     image: byrnedo/alpine-curl
     links:
-      - "openvpn-client:port-forwarded-to-some-server"
+      - "vpn-side0:port-forwarded-to-side1-server0"
     depends_on:
-      openvpn-client:
+      vpn-side0:
         condition: service_healthy
 
-  yet-another-client:
+  side0-client2:
     networks:
-      - vpn-client-2
+      - side1-net2
     image: byrnedo/alpine-curl
     links:
-      - "openvpn-client:port-forwarded-to-some-server"
+      - "vpn-side0:port-forwarded-to-side1-server0"
     depends_on:
-      openvpn-client:
+      vpn-side0:
         condition: service_healthy
 
-  openvpn-client:
+  vpn-side0:
     image: phlax/openvpn-client
     ports:
       - 8080
       - 8081
     depends_on:
-      openvpn-server:
+      vpn-side1:
         condition: service_healthy
     cap_add:
       - NET_ADMIN
     networks:
       vpn-in-between:
-      vpn-client:
+      side1-net1:
         ipv4_address: 10.23.23.2
-      vpn-client-2:
+      side1-net2:
         ipv4_address: 10.23.24.2
     volumes:
       - ${PWD}/example/client:/etc/openvpn/client
       - /dev/net:/dev/net:z
     environment:
       - VPN_CLIENT_NAME=vpn-client
-      - VPN_SERVER_HOST=openvpn-server
+      - VPN_SERVER_HOST=vpn-side1
       - VPN_SERVER_PORT=1194
-      - OVPN_PORT_FORWARDS=10.23.23.2:8080:some-server:80 10.23.24.2:8080:some-server:80 10.23.24.2:8081:some-server:80
+      - OVPN_PORT_FORWARDS=10.23.23.2:8080:side1-server0:80 10.23.24.2:8080:side1-server0:80 10.23.24.2:8081:side1-server0:80
     healthcheck:
       interval: 10s
       timeout: 5s
       retries: 5
       test: ["CMD-SHELL", "ip addr show dev tun0"]
 
-  openvpn-server:
+  vpn-side1:
     image: phlax/openvpn-server
     depends_on:
-      some-server:
+      side1-server0:
         condition: service_started
     cap_add:
       - NET_ADMIN
     networks:
-      - some-server-network
+      - side1-net0
       - vpn-in-between
     volumes:
       - ${PWD}/example/server:/etc/openvpn/server
     environment:
-      - OPENVPN_DNS_NAMES=some-server some-other-server
+      - OPENVPN_DNS_NAMES=side1-server0 some-other-server
       - VPN_SERVER_NAME=openvpn-server.ex.ample
-      - OVPN_CLIENT_NETWORKS=openvpn-client:10.23.23.0:255.255.255.0 openvpn-client:10.23.24.0:255.255.255.0
+      - OVPN_CLIENT_NETWORKS=vpn-side0:10.23.23.0:255.255.255.0 vpn-side0:10.23.24.0:255.255.255.0
     healthcheck:
       interval: 10s
       timeout: 5s
       retries: 5
       test: ["CMD-SHELL", "ip addr show dev tun0"]
 
-  some-server:
+  side1-server0:
     image: nginx
     networks:
-    - some-server-network
+    - side1-net0
     volumes:
     - ${PWD}/example/nginx/conf.d:/etc/nginx/conf.d
     - ${PWD}/example/nginx/index.html:/usr/share/nginx/html/index.html
 
 networks:
   vpn-in-between:
-  some-server-network:
-  vpn-client:
+  side1-net0:
+  side1-net1:
     ipam:
       config:
       - subnet: 10.23.23.0/24
-  vpn-client-2:
+  side1-net2:
     ipam:
       config:
       - subnet: 10.23.24.0/24

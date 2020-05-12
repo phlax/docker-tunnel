@@ -5,12 +5,12 @@ if [ ! -z "$TRAP_ERRORS" ]; then
 fi
 
 # stop the vpn client and check the daemon exited properly
-docker-compose stop openvpn-client
-docker-compose logs openvpn-client
+docker-compose stop vpn-side0
+docker-compose logs vpn-side0
 
 # stop the vpn server and check the daemon exited properly
-docker-compose stop openvpn-server
-docker-compose logs openvpn-server
+docker-compose stop vpn-side1
+docker-compose logs vpn-side1
 
 # all gone
 docker-compose ps

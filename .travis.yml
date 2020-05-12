@@ -11,12 +11,12 @@ install:
   - echo "COMPOSE_FILE=./example/docker-compose.yml" > ./.env
 
   # pull required images
-  - docker-compose pull some-server some-client
+  - docker-compose pull side1-server0 side0-client0
 
 script:
 
   # up the servers and client
-  - docker-compose up -d some-client
+  - docker-compose up -d side0-client0
 
   - pysh ./tests/system
   - pysh ./tests/routing
