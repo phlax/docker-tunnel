@@ -118,6 +118,14 @@ add_client_networks ()  {
 }
 
 
+add_subnet_masq () {
+    for masq in $OVPN_NET_MASQ; do
+	echo "Masquerade added: $masq"
+	iptables -t nat -A POSTROUTING -d "$masq" -j MASQUERADE
+    done
+}
+
+
 create_tun_device
 add_client_networks
 mangle_templates
@@ -125,6 +133,7 @@ mangle_templates
 . "$OPENVPN/ovpn_env.sh"
 setup_dns_names "${@}"
 add_control_socket
+add_subnet_masq
 
 addArg "--config" "$OPENVPN/openvpn.conf"
 
