@@ -26,3 +26,12 @@ docker-compose logs side1-server0
 
 docker-compose run -T --rm side1-client0 -m5 http://side0-server0 | grep Hello
 docker-compose logs side0-server0
+
+
+# this gets the ip address of the vpn (server/side1) for the local subnet
+container=$(docker-compose ps -q vpn-side1)
+ip=$(docker inspect "$container" | jq -r '.[].NetworkSettings.Networks["example_side1-net0"].IPAddress')
+cmd="ip route add 10.23.23.0/24 via $ip"
+
+docker-compose run -T --entrypoint="/bin/sh -c" --rm side1-client1 "$cmd && curl -m5 http://side0-server0" | grep Hello
+docker-compose logs side0-server0

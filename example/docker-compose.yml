@@ -90,6 +90,7 @@ services:
       - OPENVPN_DNS_NAMES=side1-server0 some-other-server
       - VPN_SERVER_NAME=openvpn-server.ex.ample
       - OVPN_CLIENT_NETWORKS=openvpn-client:10.23.23.0:255.255.255.0 openvpn-client:10.23.24.0:255.255.255.0
+      - OVPN_NET_MASQ=10.23.23.0/24 10.23.24.0/24
     healthcheck:
       interval: 10s
       timeout: 5s
@@ -111,6 +112,17 @@ services:
       vpn-side1:
         condition: service_healthy
 
+  side1-client1:
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - side1-net0
+    extra_hosts:
+      - "side0-server0:10.23.23.23"
+    image: byrnedo/alpine-curl
+    depends_on:
+      vpn-side1:
+        condition: service_healthy
 
 networks:
   vpn-in-between:
