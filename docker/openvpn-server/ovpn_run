@@ -54,9 +54,11 @@ mangle_templates () {
 	echo "route ${network} ${netmask}" >> /etc/openvpn/openvpn.conf
     done
     envsubst '$VPN_SERVER_NAME $OVPN_SERVER $OVPN_ROUTES $OVPN_MANAGEMENT_SOCKET' < /etc/openvpn/ovpn_env.sh.template > /etc/openvpn/ovpn_env.sh
-    echo "#### CONFIG"
-    cat /etc/openvpn/openvpn.conf
-    echo "#### ENDCONFIG"
+    if [ "$DEBUG" == "1" ]; then
+	echo "#### CONFIG"
+	cat /etc/openvpn/openvpn.conf
+	echo "#### ENDCONFIG"
+    fi
 }
 
 

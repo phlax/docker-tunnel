@@ -24,9 +24,11 @@ add_control_socket
 fix_key_permissions
 
 # echo "Added vpn client $VPN_CLIENT_NAME ($VPN_SERVER_HOST:$VPN_SERVER_PORT)"
-# echo "#### CONFIG"
-cat /etc/openvpn/$VPN_CLIENT_NAME.conf
-# echo "#### ENDCONFIG"
+if [ "$DEBUG" == "1" ]; then
+    echo "#### CONFIG"
+    cat /etc/openvpn/$VPN_CLIENT_NAME.conf
+    echo "#### ENDCONFIG"
+fi
 # route -n
 
 exec openvpn --config /etc/openvpn/$VPN_CLIENT_NAME.conf
