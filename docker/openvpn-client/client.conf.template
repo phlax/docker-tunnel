@@ -16,6 +16,8 @@ comp-lzo
 
 explicit-exit-notify 5
 
+verb 1
+
 # verb 4
 
 cipher AES-256-GCM
