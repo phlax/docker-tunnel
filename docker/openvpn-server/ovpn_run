@@ -47,7 +47,8 @@ mangle_templates () {
     address=$(ipcalc -n "$OVPN_SERVER" | cut -d"=" -f2)
     netmask=$(ipcalc -m "$OVPN_SERVER" | cut -d"=" -f2)
     export SERVER="$address $netmask"
-    envsubst '${VPN_SERVER_NAME} ${SERVER}' < /etc/openvpn/server.conf.template > /etc/openvpn/openvpn.conf
+    export OVPN_VERBOSITY=${OVPN_VERBOSITY:-1}
+    envsubst '${VPN_SERVER_NAME} ${SERVER} ${OVPN_VERBOSITY}' < /etc/openvpn/server.conf.template > /etc/openvpn/openvpn.conf
     for client_network in $OVPN_CLIENT_NETWORKS; do
 	network=$(echo "$client_network" | cut -d: -f2)
 	netmask=$(echo "$client_network" | cut -d: -f3)

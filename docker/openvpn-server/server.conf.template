@@ -1,6 +1,6 @@
 
 server $SERVER
-verb 3
+verb $OVPN_VERBOSITY
 key /etc/openvpn/server/$VPN_SERVER_NAME.key
 cert /etc/openvpn/server/$VPN_SERVER_NAME.crt
 ca /etc/openvpn/server/ca.crt
