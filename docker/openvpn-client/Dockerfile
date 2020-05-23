@@ -13,3 +13,6 @@ COPY vpn-entry.sh /usr/local/bin/entrypoint.sh
 
 RUN mkdir -p /var/run/openvpn/sockets \
 	&& chown -R openvpn:openvpn /var/run/openvpn/sockets
+
+HEALTHCHECK --interval=10s --timeout=1s --retries=5 \
+	CMD ip addr show dev tun0 || exit 1

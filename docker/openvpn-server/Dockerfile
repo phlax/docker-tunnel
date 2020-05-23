@@ -25,3 +25,6 @@ CMD ["/usr/local/bin/ovpn_run"]
 
 RUN mkdir -p /var/run/openvpn/sockets \
         && chown -R openvpn:openvpn /var/run/openvpn/sockets
+
+HEALTHCHECK --interval=10s --timeout=1s --retries=5 \
+	CMD netstat -ltnup | grep 1194 || exit 1
